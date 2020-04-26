@@ -4,15 +4,18 @@ int resval = 0;  // holds the value
 int respin_A5 = A5; // sensor pin used
 char device_uuid [8] = "ef3zf67";
 
+int led = 11;
+int brightness = 0;
+int fadeAmount = 5;
 
- 
 void setup() { 
  
   // start the serial console
   Serial.begin(9600);
   
   randomSeed(analogRead(0));
-
+  
+  pinMode(led, OUTPUT);
   //all other "init" code goes here as well
 }
 
@@ -53,51 +56,55 @@ int water_level() {
  return resval;
 }
 
-int control_command(char* instruction) {
-  int command = 0;
+String receiver() {
+  String data;
+  if (Serial.available() > 0) {
+    data = Serial.readStringUntil('\n');
+    //Serial.print("Arduino [DEBUG]: received from Raspberry pi:  ");
+    //Serial.println(data);
+    //Serial.flush();
+  }
+  return data;
+}
 
-  if 
-  return command;
+int light(int* frequency) {
+  analogWrite(led, frequency);
 }
   
 //the infinite loop of sensor reading
 void loop() { 
+String payload;
 
 //listen to topic
+if(Serial.available()) {
+  const size_t capacity = JSON_ARRAY_SIZE(1) + 2*JSON_OBJECT_SIZE(3) + 40;
+  DynamicJsonDocument doc(capacity);
+  payload = receiver();
+  DeserializationError err = deserializeJson(doc, payload);
+  
+  int data_0_fan = doc["controller"]["fan"].as<int>();
+  int data_0_light = doc["controller"]["light"].as<int>();
+  int data_0_pump = doc["controller"]["pump"].as<int>();
 
-const size_t capacity = JSON_ARRAY_SIZE(1) + 2*JSON_OBJECT_SIZE(3) + 40;
-DynamicJsonDocument doc(capacity);
+  if(data_0_light >= 0) {
+    Serial.println("Arduino [DEBUG]:{\"Success\":\"True\"}");
+    light(data_0_light);    
+  }
+  else if(data_0_pump == 1) {
+    
+  }
+  else if(data_0_fan == 1) {
+ 
+  }
+  else {
+    Serial.print("Arduino [DEBUG]: deserializeJson() returned ");
+    Serial.println(err.c_str());
 
-const char* json = Serial.read(); 
-
-deserializeJson(doc, json);
-
-const char* sensor = doc["controller"]; // "topic"
-
-JsonObject data_0 = doc["data"][0];
-int data_0_fan = data_0["fan"]; // 1
-int data_0_light = data_0["light"]; // 486
-int data_0_pump = data_0["pump"]; // 330
-
-instruction = reciever();
-
-
-if command(instruction) == 1 {
-  fan();
+    while(Serial.available() > 0) {
+      Serial.read();
+    }
+  }
 }
-
-else if command(instruction) == 2 {
-  pump();
-}
-// otherwise it must be a light instruction
-else if command(instruction) == 3{
-  int ldr = 0
-  (int)instruction.ldr = int ldr;
-  light(ldr);
-} 
-else {
-Serial.println("Error, command not recognised");
-{
 
 delay(8000);
 }
