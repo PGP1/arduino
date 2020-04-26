@@ -78,8 +78,6 @@ void mockData() {
   DynamicJsonDocument doc(capacity);
 
   doc["device"] = device_uuid;
-  doc["time"] = "20-18-04T11:24:36Z";
-
   JsonArray data = doc.createNestedArray("data");
 
   JsonObject data_0 = data.createNestedObject();
