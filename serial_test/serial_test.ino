@@ -1,13 +1,16 @@
-char dataString[50] = {0};
-int a =0; 
+int led = 11;
+int brightness = 0;
+int fadeAmount = 5;
 
 void setup() {
-Serial.begin(9600);              //Starting serial communication
+	pinMode(led, OUTPUT);
 }
-  
+
 void loop() {
-  a++;                          // a value increase every loop
-  sprintf(dataString,"%02X",a); // convert a value to hexa 
-  Serial.println(dataString);   // send the data
-  delay(1000);                  // give the loop some break
+	analogWrite(led, brightness);
+	brightness = brightness + fadeAmount;
+	if(brightness <=0 | brightness >= 255){
+		fadeAmount = -fadeAmount;
+	}	
+	delay(300);
 }
