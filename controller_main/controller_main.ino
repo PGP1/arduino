@@ -4,7 +4,8 @@
 #define DHTDIGITALPIN 7
 #define DHTTYPE DHT11
 #define WATERLEVELANALOGPIN A1
-#define LEDDIGITALPIN 11
+#define LEDPOWER 11
+#define WATERLEVELPOWER 5
 
 DHT dht(DHTDIGITALPIN, DHTTYPE);
 
@@ -28,7 +29,11 @@ void setup()
   randomSeed(analogRead(0));
 
   // setup pin to communicate to sensors
-  pinMode(LEDDIGITALPIN, OUTPUT);
+  pinMode(LEDPOWER, OUTPUT);
+  pinMode(WATERLEVELPOWER, OUTPUT);
+	
+  // Supply power to water level sensor
+  digitalWrite(WATERLEVELPOWER, HIGH);
 
   // setup dht sensor
   dht.begin();
@@ -139,7 +144,7 @@ String parsePayload()
 
 int changeLightBrightness(int *frequency)
 {
-  analogWrite(LEDDIGITALPIN, frequency);
+  analogWrite(LEDPOWER, frequency);
   brightness = frequency;
 
 }
@@ -210,8 +215,6 @@ void receiver()
 //the infinite loop of sensor reading
 void loop()
 {
-  sensorData();
-  delay(2000);
   receiver();
-  delay(8000);
+  sensorData();
 }
