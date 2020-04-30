@@ -1,5 +1,8 @@
 #include <ArduinoJson.h>
-
+#define SensorPin A0
+unsigned long int avgValue;
+float b;
+int buf[10], temp;
 int resval = 0;  // holds the value
 int respin_A5 = A5; // sensor pin used
 char device_uuid [8] = "ef3zf67";
@@ -22,6 +25,33 @@ void setup() {
 
 //take a ph level reading
 float ph() {
+
+  for(int i=0; i<10; i++){
+    buf[i]=analogRead(SensorPin)
+    delay(10);
+  }
+
+  for(int i=0; i <9 ; i++){
+    for(int j=i+1; j<10; j++){
+      if(buf[i]>buf[j]){
+        temp=buf[i];
+        buf[i]=buf[j]
+        buf[j]=temp;
+      }
+    }
+  }
+  avgValue=0;
+
+  for(int i=2;i<8;i++){
+    avgValue+=buf[i];
+  }
+
+  float phValue=(float)avgValue*5.0/1024/6; //convert the analog into millivolt
+  phValue=3.5*phValue;                      //convert the millivolt into pH value
+  Serial.print("    pH:");  
+  Serial.print(phValue,2);
+  Serial.println(" ");
+
   //resval = digitRead(respin_A6);
   //return resval
   float ph = random(5.62,6.11);
@@ -128,6 +158,6 @@ void receiver(){
 
 //the infinite loop of sensor reading
 void loop() { 
-  receiver();
+  mockData();
   delay(8000);
 }
