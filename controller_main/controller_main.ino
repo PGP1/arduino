@@ -1,42 +1,52 @@
 #include <ArduinoJson.h>
-#define SensorPin A0
+#include "DHT.h"
+#define PHANALOGPIN A0
+#define DHTDIGITALPIN 7
+#define DHTTYPE DHT11
+#define WATERLEVELANALOGPIN A1
+#define LEDDIGITALPIN 11
+
+DHT dht(DHTDIGITALPIN, DHTTYPE);
+
 unsigned long int avgValue;
 float b;
-int buf[10], temp;
-int resval = 0;  // holds the value
-int respin_A5 = A5; // sensor pin used
+int buf[10], temporary;
+
+int waterlevel_resval = 0;  // holds the value
 char device_uuid [8] = "ef3zf67";
 
-int led = 11;
 int brightness = 0;
 int fadeAmount = 5;
 
 void setup() { 
  
-  // start the serial console
+  // start the serial connnection
   Serial.begin(9600);
   
   //mock data generation
   randomSeed(analogRead(0));
   
-  // set up pin to communicate to sensors
-  pinMode(led, OUTPUT);
+  // setup pin to communicate to sensors
+  pinMode(LEDDIGITALPIN, OUTPUT);
+
+  // setup dht sensor
+  dht.begin();
 }
 
 //take a ph level reading
 float ph() {
 
   for(int i=0; i<10; i++){
-    buf[i]=analogRead(SensorPin)
+    buf[i]=analogRead(PHANALOGPIN);
     delay(10);
   }
 
   for(int i=0; i <9 ; i++){
     for(int j=i+1; j<10; j++){
       if(buf[i]>buf[j]){
-        temp=buf[i];
-        buf[i]=buf[j]
-        buf[j]=temp;
+        temporary=buf[i];
+        buf[i]=buf[j];
+        buf[j]=temporary;
       }
     }
   }
@@ -48,43 +58,54 @@ float ph() {
 
   float phValue=(float)avgValue*5.0/1024/6; //convert the analog into millivolt
   phValue=3.5*phValue;                      //convert the millivolt into pH value
-  Serial.print("    pH:");  
-  Serial.print(phValue,2);
-  Serial.println(" ");
-
+  //Serial.print("    pH:");  
+  //Serial.print(phValue,2);
+  //Serial.println(" ");
+  
+  //Mock Data	
   //resval = digitRead(respin_A6);
   //return resval
-  float ph = random(5.62,6.11);
-  return ph;
+  // float ph = random(5.62,6.11);
+  //return ph;
+
+ return phValue;
 }
 
 // take a reading from the temp sensor
 float temp() {
-  float temp = random(20.01,28.99);
+ // float temp = random(20.01,28.99);
+ // return temp;
+  float temp = dht.readTemperature();
+  Serial.print("Temperature = ");
+  Serial.println(temp);
+  Serial.print("Humidity = ");
+  Serial.println(dht.readHumidity());
   return temp;
 }
 
 //take a reading from the humidity sensor
 int humidity() { 
-  int humidity = random(45,69);
-  //if possible then humidity reported separatetly with this method
+  //int humidity = random(45,69);
+  //if possible then humidity repeated separatetly with this method
+  //return humidity;
+  float humidity = dht.readHumidity();
   return humidity;
 }
 
 //take a reading from the water-level sensor
 int water_level() {
  //take reading from analog pin and store it to resval variable
- resval = analogRead(respin_A5);
- if (resval<=100){
+ waterlevel_resval = analogRead(WATERLEVELANALOGPIN);
+ if (waterlevel_resval<=100){
    Serial.println("Water Level: Empty");
- } else if (resval>100 && resval<=300){
+ } else if (waterlevel_resval>100 && waterlevel_resval<=300){
    Serial.println("Water Level: Low");
- } else if (resval>300 && resval<=330){
+ } else if (waterlevel_resval>300 && waterlevel_resval<=330){
    Serial.println("Water Level: Medium");
- } else if (resval>330){
+ } else if (waterlevel_resval>330){
    Serial.println("Water Level: High");
  }
- return resval;
+ return waterlevel_resval;
 }
 
 String parsePayload() {
@@ -96,10 +117,10 @@ String parsePayload() {
 }
 
 int light(int* frequency) {
-  analogWrite(led, frequency);
+  analogWrite(LEDDIGITALPIN, frequency);
 }
 
-void mockData() {
+void sensorData() {
   //will be sent to topic: 37e781d9d23260a2a66b7fe7b638e314df/sensor
   Serial.println(); 
   //clear buffer and init json
@@ -113,7 +134,7 @@ void mockData() {
   JsonObject data_0 = data.createNestedObject();
   data_0["temp"] = temp();
   data_0["humidity"] = humidity();
-  data_0["water"] = 330;
+  data_0["water"] = water_level();
   data_0["ph"] = ph();
   data_0["ldr"] = 485;
 
@@ -158,6 +179,6 @@ void receiver(){
 
 //the infinite loop of sensor reading
 void loop() { 
-  mockData();
+  sensorData();
   delay(8000);
 }
