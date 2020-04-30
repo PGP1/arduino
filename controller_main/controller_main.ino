@@ -159,7 +159,7 @@ void sensorData()
   JsonObject data_0 = data.createNestedObject();
   data_0["temp"] = temp();
   data_0["humidity"] = humidity();
-  data_0["water"] = water_level();
+  data_0["water"] = waterLevel();
   data_0["ph"] = ph();
   data_0["ldr"] = brightness;
 
@@ -186,7 +186,7 @@ void receiver()
     if (data_0_light >= 0)
     {
       Serial.println("Arduino [DEBUG]:{\"Success\":\"True\"}");
-      changelightBrightness(data_0_light);
+      changeLightBrightness(data_0_light);
     }
     else if (data_0_pump == 1)
     {
