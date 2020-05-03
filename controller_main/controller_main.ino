@@ -71,16 +71,11 @@ float ph()
   float phValue = (float)avgValue * 5.0 / 1024 / 6; //convert the analog into millivolt
   phValue = 3.5 * phValue;                          //convert the millivolt into pH value
   
-  // DEBUG
-  //Serial.print("    pH:");
-  //Serial.print(phValue,2);
-  //Serial.println(" ");
-
   // Mock Data
-  //resval = digitRead(respin_A6);
-  //return resval
+  // resval = digitRead(respin_A6);
+  // return resval
   // float ph = random(5.62,6.11);
-  //return ph;
+  // return ph;
 
   return phValue;
 }
@@ -88,22 +83,20 @@ float ph()
 // take a reading from the temp sensor
 float temp()
 {
+  // Mock Data
   // float temp = random(20.01,28.99);
   // return temp;
   float temp = dht.readTemperature();
-  Serial.print("Temperature = ");
-  Serial.println(temp);
-  Serial.print("Humidity = ");
-  Serial.println(dht.readHumidity());
   return temp;
 }
 
 //take a reading from the humidity sensor
 int humidity()
 {
-  //int humidity = random(45,69);
-  //if possible then humidity repeated separatetly with this method
-  //return humidity;
+  // Mock Data
+  // int humidity = random(45,69);
+  // if possible then humidity repeated separatetly with this method
+  // return humidity;
   float humidity = dht.readHumidity();
   return humidity;
 }
@@ -151,7 +144,6 @@ int changeLightBrightness(int *frequency)
 
 void sensorData()
 {
-  //will be sent to topic: 37e781d9d23260a2a66b7fe7b638e314df/sensor
   Serial.println();
   //clear buffer and init json
 
