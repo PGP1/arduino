@@ -108,19 +108,19 @@ int waterLevel()
   waterLevelResval = analogRead(WATERLEVELANALOGPIN);
   if (waterLevelResval <= 100)
   {
-    Serial.println("Water Level: Empty");
+   // Serial.println("Water Level: Empty");
   }
   else if (waterLevelResval > 100 && waterLevelResval <= 300)
   {
-    Serial.println("Water Level: Low");
+   // Serial.println("Water Level: Low");
   }
   else if (waterLevelResval > 300 && waterLevelResval <= 330)
   {
-    Serial.println("Water Level: Medium");
+   // Serial.println("Water Level: Medium");
   }
   else if (waterLevelResval > 330)
   {
-    Serial.println("Water Level: High");
+   // Serial.println("Water Level: High");
   }
   return waterLevelResval;
 }
@@ -142,27 +142,29 @@ int changeLightBrightness(int *frequency)
 
 }
 
+int getBrightness(){
+
+  return brightness;
+}
+
 void sensorData()
 {
   Serial.println();
   //clear buffer and init json
-
   const size_t capacity = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5);
   DynamicJsonDocument doc(capacity);
 
   doc["device"] = deviceUUID;
-  JsonArray data = doc.createNestedArray("data");
+  JsonObject data = doc.createNestedObject("data");
 
-  JsonObject data_0 = data.createNestedObject();
-  data_0["temp"] = temp();
-  data_0["humidity"] = humidity();
-  data_0["water"] = waterLevel();
-  data_0["ph"] = ph();
-  data_0["ldr"] = brightness;
+  data["temp"] = temp();
+  data["humidity"] = humidity();
+  data["water"] = waterLevel();
+  data["ph"] = ph();
+  data["ldr"] = getBrightness();
 
   serializeJson(doc, Serial);
-
-  delay(8000);
+  delay(60000);
 }
 
 void receiver()
@@ -176,8 +178,8 @@ void receiver()
     payload = parsePayload();
     DeserializationError err = deserializeJson(doc, payload);
 
-    int data_0_fan = doc["controller"]["fan"].as<int>();
     int data_0_light = doc["controller"]["light"].as<int>();
+    int data_0_fan = doc["controller"]["fan"].as<int>();
     int data_0_pump = doc["controller"]["pump"].as<int>();
 
     if (data_0_light >= 0)
@@ -193,8 +195,8 @@ void receiver()
     }
     else
     {
-      Serial.print("Arduino [DEBUG]: deserializeJson() returned ");
-      Serial.println(err.c_str());
+     // Serial.print("Arduino [DEBUG]: deserializeJson() returned ");
+     // Serial.println(err.c_str());
 
       while (Serial.available() > 0)
       {
@@ -207,6 +209,6 @@ void receiver()
 //the infinite loop of sensor reading
 void loop()
 {
-  receiver();
   sensorData();
+  receiver();
 }
