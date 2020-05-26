@@ -31,10 +31,7 @@ void setup()
   // setup pin to communicate to sensors
   pinMode(LEDPOWER, OUTPUT);
   pinMode(WATERLEVELPOWER, OUTPUT);
-	
-  // Supply power to water level sensor
-  digitalWrite(WATERLEVELPOWER, HIGH);
-
+  
   // setup dht sensor
   dht.begin();
 }
@@ -104,6 +101,8 @@ int humidity()
 //take a reading from the water-level sensor
 int waterLevel()
 {
+  digitalWrite(WATERLEVELPOWER, HIGH);
+
   //take reading from analog pin and store it to resval variable
   waterLevelResval = analogRead(WATERLEVELANALOGPIN);
   if (waterLevelResval <= 100)
@@ -122,6 +121,7 @@ int waterLevel()
   {
    // Serial.println("Water Level: High");
   }
+  digitalWrite(WATERLEVELPOWER, LOW);
   return waterLevelResval;
 }
 
@@ -164,7 +164,8 @@ void sensorData()
   data["ldr"] = getBrightness();
 
   serializeJson(doc, Serial);
-  delay(60000);
+  receiver();
+  delay(1000);
 }
 
 void receiver()
@@ -210,5 +211,4 @@ void receiver()
 void loop()
 {
   sensorData();
-  receiver();
 }
